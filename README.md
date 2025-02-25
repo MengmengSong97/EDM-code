@@ -4,7 +4,7 @@ Code and Data associated with the paper: "On the local and global minimizers of 
 
 Authors: M. Song, D. S. Goncalves, W. L. Jung, C. Lavor, A. Mucherino and H. Wolkowicz
 
-Code and functions:
+Code:
 ----
 main.m: generates Pbar and Phat either random examples or our Example 1 and Example 2, and then calls lngminTR.m to solve f_L(L).
 
