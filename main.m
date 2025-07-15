@@ -35,8 +35,8 @@ flip_strategy = true;     %% can be set as 'true' only when randprob = true, d=1
 partial = false;  % use partial EDM data (distances) or not
 verboseplot = false;  %plot or not
 if randprob
-	n = 2000;  % number of pts
-	d = 1;   % emb. dim
+	n = 200;  % number of pts
+	d = 2;   % emb. dim
 	ntests = 10;  % choose number of random problems to try
 else
 	ntests = 1;
@@ -70,20 +70,22 @@ if randprob
        Pbar = Pbar - sum(Pbar)/n;
        [m, t] = max(abs(Pbar(:,1)));
        Pbar = Pbar - sum(Pbar)/n; 
-       Phat = Pbar; Phat(t) = -Pbar(t);
+       Phat = Pbar; Phat(1) = -Pbar(1);
        Phat = Phat - sum(Phat)/n;
        A= ([ones(1,n-1);-eye(n-1)]); 
        [V] = GS(A);
        Lbar = V'*Pbar;
        Lhat = V'*Phat;
-    elseif flip_strategy == 1 && d == 2%%%%%%%%%%%%%% 
-       Lbar = 20*randn(n-1,d);  %opt Pbar
-       Lbar(1,2) = 0;
+    elseif flip_strategy == 1 %%%%%%%%%%%%%% 
+       Lbar = randn(n-1,d);  %opt Pbar
+       for jj=1:d
+        Lbar(:,jj) = jj^2*Lbar(:,jj);
+       end
        [m1, t1] = max(abs(Lbar(:,1)));
-       [m2, t2] = max(abs([Lbar(1:t1-1,1);0;Lbar(t1+1:n-1,1)]));
+       %[m2, t2] = max(abs([Lbar(1:t1-1,1);0;Lbar(t1+1:n-1,1)]));
        Lhat = Lbar;
        Lhat(t1,:) = -Lbar(t1,:);
-       Lhat(t2,:) = -Lbar(t2,:);
+       %Lhat(t2,:) = -Lbar(t2,:);
        A = ([ones(1,n-1);-eye(n-1)]); 
        [V] = GS(A);
        Pbar = V*Lbar;
@@ -118,13 +120,14 @@ else
 	end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%% The adjacent matrix H %%%%%%%%%%%%%%%%%%%%%%%%%%% 
-H = triu(ones(n),1);
+H = ones(n,n);
 if partial
 	%H(triu(ones(n),min(d+2,n))==1) = 0;  %Higher sparsity
     H(triu(ones(n),min(max(d+2,n/2),n))==1) = 0; %lower sparsity
+    H = H+H';
 end
-H = H+H';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Lbar = V'*Pbar; Lhat = V'*Phat;
+fprintf('\n End of the generation of Lbar Lhat Pbar Phat\n');
 [Lc] = lngminTR(n,d,Lbar,Lhat,V,H,toler);
 end
